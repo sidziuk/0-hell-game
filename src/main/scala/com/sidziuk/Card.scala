@@ -1,12 +1,29 @@
 package com.sidziuk
 
 import enumeratum._
+import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}
+import io.circe.{Encoder, HCursor}
+import io.circe.{Decoder, Encoder, Json}
+import io.circe.syntax._
 
 case class Card(suit: Suit, rank: Rank) extends Ordered[Card] {
   override def compare(that: Card): Int = {
     val suitCompare = suit.compare(that.suit)
     if (suitCompare != 0) suitCompare else rank.compare(that.rank)
   }
+}
+
+object Card {
+  implicit val encoder: Encoder[Card] = (card: Card) => Json.obj(
+    ("suit", card.suit.asJson),
+    ("rank", card.rank.asJson)
+  )
+
+  implicit val decoder: Decoder[Card] = (c: HCursor) =>
+    for {
+      suit <- c.downField("suit").as[Suit]
+      rank <- c.downField("rank").as[Rank]
+    } yield Card(suit, rank)
 }
 
 sealed abstract class Rank(val order: Int) extends EnumEntry with Ordered[Rank] {
@@ -30,6 +47,10 @@ object Rank extends Enum[Rank] {
   case object King extends Rank(11)
   case object Ace extends Rank(12)
 
+  implicit val suitEncoder: Encoder[Rank] = deriveEnumerationEncoder[Rank]
+  implicit val suitDecoder: Decoder[Rank] = deriveEnumerationDecoder[Rank]
+
+
 }
 
 sealed abstract class Suit(val order: Int) extends EnumEntry with Ordered[Suit] {
@@ -44,4 +65,9 @@ object Suit extends Enum[Suit] {
   case object Spade extends Suit(2)
   case object Diamond extends Suit(3)
   case object Club extends Suit(4)
+
+  implicit val suitEncoder: Encoder[Suit] = deriveEnumerationEncoder[Suit]
+  implicit val suitDecoder: Decoder[Suit] = deriveEnumerationDecoder[Suit]
+
+
 }

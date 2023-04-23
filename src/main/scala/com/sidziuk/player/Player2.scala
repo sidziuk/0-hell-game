@@ -1,8 +1,7 @@
-package com.sidziuk
+package com.sidziuk.player
 
-import cats.effect.{IO, Sync}
-import com.sidziuk.Rank.Five
-import com.sidziuk.Suit.Heart
+import cats.effect.Sync
+import com.sidziuk.Card
 
 import scala.collection.immutable.SortedSet
 

@@ -1,6 +1,34 @@
 package com.sidziuk
 
+import com.sidziuk.DeckAlgebra.deckAlgebraSync.{createShuffledDesk, getTrump}
+import com.sidziuk.Rank.Nine
+import com.sidziuk.Suit.Heart
+import io.circe._
+import io.circe.syntax._
+import io.circe.generic.semiauto._
+
+import java.util.UUID
+
 case class Deck(cards: Set[Card], trump: Option[Card])
+
+object Deck {
+
+  implicit val cardEncoder: Encoder[Card] = deriveEncoder[Card]
+  implicit val cardDecoder: Decoder[Card] = deriveDecoder[Card]
+
+  implicit val deckEncoder: Encoder[Deck] = Encoder.instance { deck =>
+    Json.obj(
+      "cards" -> deck.cards.asJson,
+      "trump" -> deck.trump.asJson
+    )
+  }
+  implicit val deckDecoder: Decoder[Deck] = Decoder.instance { c =>
+    for {
+      cards <- c.downField("cards").as[Set[Card]]
+      trump <- c.downField("trump").as[Option[Card]]
+    } yield Deck(cards, trump)
+  }
+}
 
 trait DeckAlgebra {
   def createShuffledDesk: Deck
@@ -42,13 +70,8 @@ object DeckAlgebra {
   }
 }
 
-//object app extends App {
-//
-//
-//  val d: IO[Deck] = DeckAlgebra[IO].createShuffledDesk
-//  //  val f = DeckAlgebra[IO].getTrump
-//
-//  println(d)
-//
-//}
+object app extends App {
+  val f = createShuffledDesk
+  println(f.asJson)
+}
 
