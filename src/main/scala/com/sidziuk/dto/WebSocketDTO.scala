@@ -2,7 +2,7 @@ package com.sidziuk.dto
 
 import cats.syntax.functor._
 import com.sidziuk.domain.game.OHellMove
-import com.sidziuk.dto.game.room.command.{CreateNewRoomDTO, GetRoomsDTO, JoinToRoomDTO, LeaveRoomDTO, RunGameDTO}
+import com.sidziuk.dto.game.room.command._
 import io.circe.Decoder
 
 

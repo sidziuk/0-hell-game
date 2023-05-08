@@ -1,60 +1,29 @@
 package com.sidziuk.routes.game
 
-import cats.syntax.either._
-import cats.syntax.functor._
+import cats.effect._
 import cats.effect.kernel.Ref
-import cats.effect.{ExitCode, IO, IOApp}
-import com.comcast.ip4s.IpLiteralSyntax
-import com.sidziuk.deck.Card
+import cats.effect.std.Queue
+import cats.implicits.toFunctorOps
+import cats.syntax.all._
+import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellMove, OHellPlayer}
+import com.sidziuk.dto.WebSocketDTO
+import com.sidziuk.dto.game.ohellgame.responce.{OHellGameDTO, OHellPlayerDTO}
+import com.sidziuk.dto.game.room.command._
+import com.sidziuk.dto.game.room.responce.GameRoomDTO
 import com.sidziuk.room.GameRoom
-import io.circe.generic.auto._
+import com.sidziuk.servis.game.GameServiceImp
+import fs2.Stream
+import fs2.concurrent._
+import io.circe.parser._
 import io.circe.syntax._
 import org.http4s.HttpRoutes
 import org.http4s.circe.CirceEntityCodec._
-import org.http4s.dsl.io._
-import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.implicits._
-import fs2.concurrent._
-import fs2.{Pipe, Stream}
-import cats.effect.std.Queue
-import cats.effect.unsafe.implicits.global
-import com.sidziuk.domain.game.{GameRulesAlgebra, MoveType, OHellGame, OHellMove, OHellPlayer}
-import com.sidziuk.domain.player.RegisteredPlayer
-import com.sidziuk.repository.player.DoobiePlayerRepositoryImp
-import com.sidziuk.routes.player.PlayerRoutes
-import com.sidziuk.servis.player.PlayerServiceImp
-import doobie.h2.H2Transactor
-import doobie.implicits.toSqlInterpolator
-import io.circe
-import org.http4s.server.websocket.{WebSocketBuilder, WebSocketBuilder2}
+import org.http4s.dsl.Http4sDsl
+import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import io.circe._
-import io.circe.parser._
-import fs2.Stream
 import org.typelevel.log4cats.SelfAwareStructuredLogger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
-import doobie.{ExecutionContexts, Transactor}
-import cats.effect._
-import cats.implicits.toFunctorOps
-import doobie._
-import doobie.implicits._
-import cats.effect._
-import cats.implicits.toFunctorOps
-import com.sidziuk.dto.WebSocketDTO
-import com.sidziuk.dto.game.ohellgame.responce.{OHellGameDTO, OHellPlayerDTO}
-import com.sidziuk.dto.game.room.command.{CreateNewRoomDTO, GetRoomsDTO, JoinToRoomDTO, LeaveRoomDTO, RunGameDTO}
-import com.sidziuk.dto.game.room.responce.GameRoomDTO
-import com.sidziuk.dto.player.CreatePlayerDTO
-import com.sidziuk.repository.CreatePlayerTable
-import com.sidziuk.repository.DbTransactor.geth2Transactor
-import com.sidziuk.servis.game.GameServiceImp
-import doobie._
-import doobie.implicits._
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext
-import cats.syntax.all._
-import org.http4s.dsl.Http4sDsl
 
 object GameRoutes {
 

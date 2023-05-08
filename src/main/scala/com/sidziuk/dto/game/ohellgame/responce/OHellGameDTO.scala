@@ -1,11 +1,9 @@
 package com.sidziuk.dto.game.ohellgame.responce
 
-import com.sidziuk.deck.{Card, Deck}
-import com.sidziuk.domain.game.{Bid, Desk, MoveType, OHellPlayer}
-import com.sidziuk.domain.game.GameRulesAlgebra.numberCardsOnHands
-import com.sidziuk.dto.game.ohellgame.command.OHellMoveDTO
-import io.circe.{Decoder, Encoder}
+import com.sidziuk.deck.Card
+import com.sidziuk.domain.game.{Desk, MoveType, OHellPlayer}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
 import java.util.UUID
 

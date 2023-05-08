@@ -1,10 +1,7 @@
 package com.sidziuk.domain.game
 
-import com.sidziuk.deck.Rank.{Nine, Ten}
-import com.sidziuk.deck.Suit.Heart
 import com.sidziuk.deck.{Card, Suit}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.syntax.EncoderOps
 import io.circe.{Decoder, Encoder}
 
 import java.util.UUID

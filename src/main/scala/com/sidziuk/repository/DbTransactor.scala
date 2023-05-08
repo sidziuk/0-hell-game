@@ -1,9 +1,8 @@
 package com.sidziuk.repository
 
 import cats.effect.{Async, Resource}
-import doobie.{ExecutionContexts, Transactor}
+import doobie.Transactor
 import doobie.h2.H2Transactor
-import doobie.hikari.HikariTransactor
 
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext

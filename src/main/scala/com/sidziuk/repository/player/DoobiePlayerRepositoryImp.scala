@@ -1,17 +1,9 @@
 package com.sidziuk.repository.player
 
-import cats.{FlatMap, Monad}
-import cats.effect.{Async, MonadCancelThrow, Resource, Sync}
-import doobie.WeakAsync.doobieWeakAsyncForAsync
+import cats.effect.Sync
+import cats.syntax.all._
 import doobie._
 import doobie.implicits._
-import sun.security.util.Password
-import cats.instances._
-import cats.syntax.all._
-import com.sidziuk.dto.player.CreatePlayerDTO
-import org.h2.jdbcx.JdbcConnectionPool
-
-import java.util.UUID
 
 class DoobiePlayerRepositoryImp[F[_]: Sync](transactor: Transactor[F]) extends PlayerRepository[F] {
 

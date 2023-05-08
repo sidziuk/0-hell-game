@@ -1,6 +1,5 @@
 package com.sidziuk.deck
 
-import com.sidziuk.deck.DeckAlgebra.deckAlgebraSync.createShuffledDesk
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax._

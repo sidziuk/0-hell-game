@@ -1,12 +1,9 @@
 package com.sidziuk.repository.game
 
 import cats.effect.Sync
-import cats.syntax.all._
 import com.sidziuk.domain.player.RegisteredPlayer
 import doobie._
 import doobie.implicits._
-import cats.syntax.all._
-import com.sidziuk.repository.player.DoobiePlayerRepositoryImp
 
 import java.util.UUID
 

@@ -1,8 +1,8 @@
 package com.sidziuk.dto.game.ohellgame.responce
 
 import com.sidziuk.deck.Card
-import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.{Decoder, Encoder}
 
 import java.util.UUID
 

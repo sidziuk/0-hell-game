@@ -1,19 +1,14 @@
 package com.sidziuk.routes.player
 
-import cats.effect.kernel.Ref
+import cats.Monad
 import cats.effect.Concurrent
-import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import cats.implicits._
+import com.sidziuk.dto.player.CreatePlayerDTO
 import com.sidziuk.servis.player.PlayerServiceImp
+import io.circe.syntax.EncoderOps
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.dsl.Http4sDsl
-
-import java.util.UUID
-import cats.Monad
-import cats.implicits._
-import com.sidziuk.domain.player.RegisteredPlayer
-import com.sidziuk.dto.player.CreatePlayerDTO
-import io.circe.{Decoder, Encoder}
-import io.circe.syntax.EncoderOps
+import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
 
 class PlayerRoutes[F[_]: Concurrent: Monad](playersService: PlayerServiceImp[F]) {
 

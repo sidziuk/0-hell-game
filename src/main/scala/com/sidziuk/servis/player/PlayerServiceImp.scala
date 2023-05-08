@@ -1,13 +1,9 @@
 package com.sidziuk.servis.player
 
-import cats.syntax.functor._
-import cats.effect.{Async, ExitCode, IO, IOApp, Sync}
+import cats.effect.Sync
 import cats.implicits._
-import com.sidziuk.domain.game.{GameRulesAlgebra, MoveType, OHellGame, OHellMove, OHellPlayer}
-import com.sidziuk.domain.player.RegisteredPlayer
 import com.sidziuk.dto.player.CreatePlayerDTO
 import com.sidziuk.repository.player.PlayerRepository
-import doobie.WeakAsync.doobieWeakAsyncForAsync
 
 import java.util.UUID
 class PlayerServiceImp[F[_]: Sync](playerRepository: PlayerRepository[F]) extends PlayerService[F] {
