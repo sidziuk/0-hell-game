@@ -1,4 +1,4 @@
-package com.sidziuk.player
+package com.sidziuk.domain
 
 import java.util.UUID
 

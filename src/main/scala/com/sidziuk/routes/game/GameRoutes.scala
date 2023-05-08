@@ -1,4 +1,4 @@
-package com.sidziuk
+package com.sidziuk.routes.game
 
 import cats.syntax.either._
 import cats.syntax.functor._
@@ -47,120 +47,50 @@ import com.sidziuk.dto.game.room.responce.GameRoomDTO
 import com.sidziuk.dto.player.CreatePlayerDTO
 import com.sidziuk.repository.CreatePlayerTable
 import com.sidziuk.repository.DbTransactor.geth2Transactor
-import com.sidziuk.repository.game.DoobieGameRepositoryImp
-import com.sidziuk.routes.CommonRoutes
-import com.sidziuk.routes.game.GameRoutes
 import com.sidziuk.servis.game.GameServiceImp
 import doobie._
 import doobie.implicits._
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
+import cats.syntax.all._
+import org.http4s.dsl.Http4sDsl
 
-object Server extends IOApp {
-  def run(args: List[String]): IO[ExitCode] = {
-    geth2Transactor[IO].use { transactor =>
-      for {
-        logger <- Slf4jLogger.create[IO]
-        _      <- CreatePlayerTable[IO](transactor)
-        //      players    <- Ref.of[IO, Map[UUID, RegisteredPlayer]](Map.empty)
-        gameRooms  <- Ref.of[IO, Map[UUID, GameRoom[IO]]](Map.empty)
-        roomsTopic <- Topic[IO, String]
-        h2PlayerRepository  = DoobiePlayerRepositoryImp[IO](transactor)
-        playerService = new PlayerServiceImp[IO](h2PlayerRepository)
-        playerRoutes  = new PlayerRoutes[IO](playerService).getPlayerRoutes
+object GameRoutes {
 
-        h2GameRepository  = DoobieGameRepositoryImp[IO](transactor)
-        gameService = new GameServiceImp[IO](h2GameRepository)
+  //  def getUUIDWithSeed(seed: Long): UUID = {
+  //    val mostSignificantBits  = (seed << 32) | (seed >>> 32)
+  //    val leastSignificantBits = (seed << 48) | ((seed & 0xffffL) << 32) | (seed >>> 16)
+  //    new UUID(mostSignificantBits, leastSignificantBits)
+  //  }
+  //
+  //    val seedForPlayer = System.currentTimeMillis()
+  //    val seedForRoom   = System.currentTimeMillis()
+  //    val gameRooms     = Ref.of[IO, Map[UUID, GameRoom[IO]]](Map.empty).unsafeRunSync()
+  //    val players       = Ref.of[IO, Map[UUID, Player]](Map.empty)
+  //    val messageQueue  = Queue.bounded[IO, String](10)
 
+  def getRoutes[F[_]: Async: Concurrent](
+    gameService: GameServiceImp[F],
+    gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
+    roomsTopic: Topic[F, String],
+    logger: SelfAwareStructuredLogger[F],
+    ws: WebSocketBuilder2[F]
+  ): HttpRoutes[F] = {
 
+    val dsl = Http4sDsl[F]
+    import dsl._
 
-        exitCode <- {
-          val server = EmberServerBuilder
-            .default[IO]
-            .withHost(ipv4"127.0.0.1")
-            .withPort(port"9001")
-          .withHttpWebSocketApp(ws =>
-            CommonRoutes.getAllRoutes(
-            playersService = playerService,
-            gameService = gameService,
-            gameRooms = gameRooms,
-            roomsTopic = roomsTopic,
-            logger = logger,
-            ws = ws
-          ))
-//            .withHttpApp(playerRoutes.orNotFound)
-            .build
-            .useForever
-
-          server.as(ExitCode.Success)
-        }
-      } yield exitCode
-    }
-  }
-}
-
-object Routesd {
-
-//  def getUUIDWithSeed(seed: Long): UUID = {
-//    val mostSignificantBits  = (seed << 32) | (seed >>> 32)
-//    val leastSignificantBits = (seed << 48) | ((seed & 0xffffL) << 32) | (seed >>> 16)
-//    new UUID(mostSignificantBits, leastSignificantBits)
-//  }
-//
-//    val seedForPlayer = System.currentTimeMillis()
-//    val seedForRoom   = System.currentTimeMillis()
-//    val gameRooms     = Ref.of[IO, Map[UUID, GameRoom[IO]]](Map.empty).unsafeRunSync()
-//    val players       = Ref.of[IO, Map[UUID, Player]](Map.empty)
-//    val messageQueue  = Queue.bounded[IO, String](10)
-
-  def getRoutes(
-    players: Ref[IO, Map[UUID, RegisteredPlayer]],
-    gameRooms: Ref[IO, Map[UUID, GameRoom[IO]]],
-    roomsTopic: Topic[IO, String],
-    logger: SelfAwareStructuredLogger[IO],
-    ws: WebSocketBuilder2[IO]
-  ): HttpRoutes[IO] = {
-    HttpRoutes.of[IO] {
-
-      case req @ POST -> Root / "player" =>
-        for {
-          createdPlayer   <- req.as[CreatePlayerDTO]
-          existingPlayers <- players.get
-          response        <- existingPlayers.values.find { player =>
-                               player.name == createdPlayer.name &&
-                               player.password == createdPlayer.password
-                             } match {
-                               case Some(_) =>
-                                 BadRequest(s"Player with name ${createdPlayer.name} already exists")
-                               case None    =>
-                                 val playerId = UUID.randomUUID()
-                                 players.update(
-                                   _.updated(playerId, RegisteredPlayer(playerId, createdPlayer.name, createdPlayer.password))
-                                 ) >>
-                                   Ok(playerId.asJson)
-                             }
-        } yield response
-
-      case GET -> Root / "players" / name / password =>
-        for {
-          existingPlayers <- players.get
-          response        <- existingPlayers.collectFirst {
-                               case (playerId, player) if player.name == name && player.password == password =>
-                                 playerId
-                             } match {
-                               case Some(playerId) => Ok(playerId.asJson)
-                               case None           => BadRequest(s"Player with name $name and $password does not exist")
-                             }
-        } yield response
-
+    HttpRoutes.of[F] {
       case GET -> Root / "ws" / "room" / playerUUID =>
         for {
-          queue       <- Queue.unbounded[IO, String]
-          allPlayers  <- players.get
-          playerUUID  <- IO(UUID.fromString(playerUUID))
+          queue       <- Queue.unbounded[F, String]
+          allPlayers  <- gameService.getAllPlayers()
+          playerUUID  <- Async[F].delay(UUID.fromString(playerUUID))
+          _           <- Async[F].delay(println(allPlayers, playerUUID))
           mayBeSocket <- allPlayers.get(playerUUID) match {
                            case Some(player) =>
+                             println("here")
                              ws.build(
                                receive = _.evalMap { case WebSocketFrame.Text(message, _) =>
                                  println(s"$message")
@@ -176,7 +106,7 @@ object Routesd {
                                            _ <- gameType match {
                                                   case "OHell" =>
                                                     val roomUUID = UUID.randomUUID()
-                                                    val gameRoom = GameRoom[IO](
+                                                    val gameRoom = GameRoom[F](
                                                       roomUUID = roomUUID,
                                                       game = OHellGame(players =
                                                         Seq(OHellPlayer(uuid = player.uuid, name = player.name))
@@ -187,7 +117,7 @@ object Routesd {
                                                   case _       =>
                                                     logger.warn(
                                                       s"Game with name $gameType does not exist"
-                                                    ) >> IO.unit
+                                                    ) >> Async[F].unit
                                                 }
 
                                          } yield ()
@@ -202,9 +132,9 @@ object Routesd {
                                                            ) {
                                                              logger.warn(
                                                                s"Player with ID $playerUUID already exists in room $roomUUID"
-                                                             ) >> IO.unit
+                                                             ) >> Async[F].unit
                                                            } else if (room.game.maxPlayersNumber == room.game.players.size) {
-                                                             logger.warn(s"Game is full of players") >> IO.unit
+                                                             logger.warn(s"Game is full of players") >> Async[F].unit
                                                            } else {
                                                              room.game match {
                                                                case oHellGAme: OHellGame =>
@@ -221,11 +151,13 @@ object Routesd {
                                                                    roomsTopic.publish1(
                                                                      s"player $playerUUID joined to romm $roomUUID"
                                                                    )
-                                                               case _                    => logger.warn(s"Game type is not valid") >> IO.unit
+                                                               case _                    =>
+                                                                 logger.warn(s"Game type is not valid") >> Async[F].unit
                                                              }
                                                            }
                                                          case None       =>
-                                                           logger.warn(s"Room with ID $roomUUID does not exist") >> IO.unit
+                                                           logger
+                                                             .warn(s"Room with ID $roomUUID does not exist") >> Async[F].unit
                                                        }
 
                                          } yield ()
@@ -240,7 +172,7 @@ object Routesd {
                                                            ) {
                                                              logger.warn(
                                                                s"Player with ID $playerUUID already not exists in room $roomUUID"
-                                                             ) >> IO.unit
+                                                             ) >> Async[F].unit
                                                            } else {
                                                              room.game match {
                                                                case oHellGAme: OHellGame =>
@@ -253,16 +185,18 @@ object Routesd {
                                                                    roomsTopic.publish1(
                                                                      s"player $playerUUID leaved room $roomUUID"
                                                                    )
-                                                               case _                    => logger.warn(s"Game type is not valid") >> IO.unit
+                                                               case _                    =>
+                                                                 logger.warn(s"Game type is not valid") >> Async[F].unit
                                                              }
                                                            }
                                                          case None       =>
-                                                           logger.warn(s"Room with ID $roomUUID does not exist") >> IO.unit
+                                                           logger
+                                                             .warn(s"Room with ID $roomUUID does not exist") >> Async[F].unit
                                                        }
                                          } yield ()
                                        case RunGameDTO(_, roomUUID)    =>
                                          for {
-                                           topic    <- Topic[IO, String]
+                                           topic    <- Topic[F, String]
                                            allRooms <- gameRooms.get
                                            _        <- allRooms.get(roomUUID) match {
                                                          case Some(room) =>
@@ -281,19 +215,21 @@ object Routesd {
                                                                    roomsTopic.publish1(
                                                                      s"player $playerUUID leaved room $roomUUID"
                                                                    )
-                                                               case _                    => logger.warn(s"Game type is not valid") >> IO.unit
+                                                               case _                    =>
+                                                                 logger.warn(s"Game type is not valid") >> Async[F].unit
                                                              }
                                                            } else {
                                                              logger.warn(
                                                                s"Player with ID $playerUUID already not exists in room $roomUUID"
-                                                             ) >> IO.unit
+                                                             ) >> Async[F].unit
                                                            }
                                                          case None       =>
-                                                           logger.warn(s"Room with ID $roomUUID does not exist") >> IO.unit
+                                                           logger
+                                                             .warn(s"Room with ID $roomUUID does not exist") >> Async[F].unit
                                                        }
                                          } yield ()
                                      }
-                                   case Left(error)         => IO.unit
+                                   case Left(error)         => Async[F].unit
                                  }
                                },
                                send = {
@@ -323,13 +259,13 @@ object Routesd {
 
       case GET -> Root / "ws" / "game" / playerUUID / roomUUID =>
         for {
-          allPlayers  <- players.get
-          playerUUID  <- IO(UUID.fromString(playerUUID))
+          allPlayers  <- gameService.getAllPlayers()
+          playerUUID  <- Async[F].delay(UUID.fromString(playerUUID))
           mayBeSocket <- allPlayers.get(playerUUID) match {
                            case Some(player) =>
                              for {
                                allRooms     <- gameRooms.get
-                               roomUUID     <- IO(UUID.fromString(roomUUID))
+                               roomUUID     <- Async[F].delay(UUID.fromString(roomUUID))
                                mayBeSocket1 <- allRooms.get(roomUUID) match {
                                                  case Some(room) =>
                                                    val gameTopic = room.gameTopic.get
@@ -358,22 +294,22 @@ object Routesd {
                                                                                      ) >>
                                                                                        gameTopic.publish1(
                                                                                          s"player $playerUUID leaved room $roomUUID"
-                                                                                       ) >> IO.unit
+                                                                                       ) >> Async[F].unit
                                                                                    case GetRoomsDTO()   =>
                                                                                      println("stars-----" + currentRoom)
                                                                                      currentRoom.gameTopic.get.publish1(
                                                                                        s"player $playerUUID leaved room $roomUUID"
-                                                                                     ) >> IO.unit
-                                                                                   case _               => IO.unit
+                                                                                     ) >> Async[F].unit
+                                                                                   case _               => Async[F].unit
                                                                                  }
-                                                                               case _                    => IO.unit
+                                                                               case _                    => Async[F].unit
                                                                              }
-                                                                           case None              => IO.unit
+                                                                           case None              => Async[F].unit
                                                                          }
 
                                                            } yield ()
 
-                                                         case Left(error) => IO.unit
+                                                         case Left(error) => Async[F].unit
                                                        }
                                                      },
                                                      send = {
@@ -444,4 +380,5 @@ object Routesd {
         } yield mayBeSocket
     }
   }
+
 }

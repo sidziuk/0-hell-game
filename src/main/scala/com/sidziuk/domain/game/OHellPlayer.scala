@@ -1,12 +1,12 @@
-package com.sidziuk.player
+package com.sidziuk.domain.game
 
-import com.sidziuk.Card
+import com.sidziuk.deck.Card
+import com.sidziuk.domain.Player
+import io.circe.syntax._
+import io.circe.{Decoder, Encoder, HCursor, Json}
 
 import java.util.UUID
 import scala.collection.immutable.SortedSet
-import io.circe.{Encoder, Decoder, HCursor, Json}
-import io.circe.syntax._
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 
 case class OHellPlayer(uuid: UUID,
@@ -135,11 +135,3 @@ object PlayerAlgebra {
     override def getScore(player: OHellPlayer): Int = player.score
   }
 }
-
-//val m: PlayerAlgebra[IO] = PlayerAlgebra[IO]
-//
-//for {
-// p <- m.createPlayer("gg", "ggrgr")
-// p2 <- m.addCardToPlayerHand(p, (Card(Heart, Seven)))
-//
-//} yield ()

@@ -1,10 +1,7 @@
-package com.sidziuk.game
+package com.sidziuk.domain.game
 
-import com.sidziuk.Rank._
-import com.sidziuk.Suit._
-import com.sidziuk._
-import com.sidziuk.game.GameRulesAlgebra.numberCardsOnHands
-import com.sidziuk.player.{OHellPlayer, PlayerAlgebra}
+import com.sidziuk.deck.{Card, Deck, DeckAlgebra, Suit}
+import com.sidziuk.domain.game.GameRulesAlgebra.numberCardsOnHands
 import io.circe.syntax.EncoderOps
 
 import java.util.UUID
@@ -21,18 +18,16 @@ case class OHellGame(
   currentGameRound: Int = 1,
   moveType: MoveType = Bid,
   ifGameEnd: Boolean = false,
-  isGameStarted: Boolean = false
-) extends Game() {
-  override val minPlayerNumber: Int  = 3
-  override val maxPlayersNumber: Int = 7
-}
+  isGameStarted: Boolean = false,
+  minPlayerNumber: Int  = 2,
+  maxPlayersNumber: Int = 7,
+  deskWinner: Option[UUID] = None
+) extends Game()
 
 object OHellGame {
 
-  import io.circe.Decoder
-  import io.circe.generic.semiauto.deriveDecoder
-  import io.circe.Encoder
-  import io.circe.generic.semiauto.deriveEncoder
+  import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+  import io.circe.{Decoder, Encoder}
 
   implicit val encodeUUID: Encoder[UUID] = Encoder.encodeString.contramap[UUID](_.toString)
   implicit val decodeUUID: Decoder[UUID] = Decoder.decodeString.emapTry { str =>
@@ -44,9 +39,9 @@ object OHellGame {
 }
 
 trait GameRulesAlgebra {
-  def createNewGame(players: Seq[OHellPlayer]): OHellGame
+  def startGame(game: OHellGame): OHellGame
 
-  def makeMove(game: OHellGame, move: Move): OHellGame
+  def makeMove(game: OHellGame, move: OHellMove): OHellGame
 }
 
 object GameRulesAlgebra {
@@ -63,7 +58,7 @@ object GameRulesAlgebra {
 
       def nexPlayerIndex(currentPlayerIndex: Int, players: Seq[OHellPlayer]) = (currentPlayerIndex + 1) % players.size
 
-      override def createNewGame(players: Seq[OHellPlayer]): OHellGame = {
+      override def startGame(game: OHellGame): OHellGame = {
 
         @tailrec
         def cardgg(players: Seq[OHellPlayer], deck: Deck, cardNumber: Int): (Seq[OHellPlayer], Deck) = {
@@ -87,24 +82,26 @@ object GameRulesAlgebra {
           }
         }
 
-        val randomPlayer                                 = Random.shuffle(players).head
-        val dealerId                                     = randomPlayer.uuid
-        val movePlayerId                                 = players(nexPlayerIndex(players.indexOf(randomPlayer), players)).uuid
-        val (newplayers, deck): (Seq[OHellPlayer], Deck) =
-          cardgg(players, deckalg.createShuffledDesk, numberCardsOnHands)
-        val superPlayers                                 = newplayers.map { player =>
-          val mayBeDealerPlayer = if (player.uuid == dealerId) player.copy(isDealer = true) else player
-          if (player.uuid == movePlayerId)
-            mayBeDealerPlayer.copy(isHaveMove = true, possibleBids = Option(0 to numberCardsOnHands))
-          else mayBeDealerPlayer
-        }
-        val deckWithTrump                                = Option(deckalg.getTrump(deck))
-        val newMap: Map[UUID, Seq[Int]]                  = Map()
-        val mapscore: Map[UUID, Seq[Int]]                = players.foldLeft(newMap) { case (map, pl) => map + (pl.uuid -> Seq()) }
-        OHellGame(deckWithTrump, superPlayers, scoreHistory = mapscore, isGameStarted = true)
+        if (!game.isGameStarted && game.players.size >= game.minPlayerNumber && game.players.size <= game.maxPlayersNumber) {
+          val randomPlayer = Random.shuffle(game.players).head
+          val dealerId = randomPlayer.uuid
+          val movePlayerId = game.players(nexPlayerIndex(game.players.indexOf(randomPlayer), game.players)).uuid
+          val (newplayers, deck): (Seq[OHellPlayer], Deck) =
+            cardgg(game.players, deckalg.createShuffledDesk, numberCardsOnHands)
+          val superPlayers = newplayers.map { player =>
+            val mayBeDealerPlayer = if (player.uuid == dealerId) player.copy(isDealer = true) else player
+            if (player.uuid == movePlayerId)
+              mayBeDealerPlayer.copy(isHaveMove = true, possibleBids = Option(0 to numberCardsOnHands))
+            else mayBeDealerPlayer
+          }
+          val deckWithTrump = Option(deckalg.getTrump(deck))
+          val newMap: Map[UUID, Seq[Int]] = Map()
+          val mapscore: Map[UUID, Seq[Int]] = game.players.foldLeft(newMap) { case (map, pl) => map + (pl.uuid -> Seq()) }
+          OHellGame(deckWithTrump, superPlayers, scoreHistory = mapscore, isGameStarted = true)
+        } else game
       }
 
-      def checkIfMoveValid(game: OHellGame, move: Move): Boolean =
+      def checkIfMoveValid(game: OHellGame, move: OHellMove): Boolean =
         if (
           game.players.iterator.filter(_.isHaveMove).map(_.uuid).contains(move.playerId)
           && move.moveType == game.moveType
@@ -112,13 +109,13 @@ object GameRulesAlgebra {
           //        println("-----------")
           println(move)
           move match {
-            case Move(playerId, moveType, card, bid)
+            case OHellMove(playerId, moveType, card, bid)
                 if moveType == Bid &&
                   card.isEmpty &&
                   bid.nonEmpty &&
                   game.players.filter(_.uuid == playerId).head.possibleBids.get.contains(bid.get) =>
               true
-            case Move(playerId, moveType, card, bid)
+            case OHellMove(playerId, moveType, card, bid)
                 if moveType == PlayCard &&
                   card.nonEmpty &&
                   bid.isEmpty &&
@@ -140,10 +137,10 @@ object GameRulesAlgebra {
           }
         } else false
 
-      override def makeMove(game: OHellGame, move: Move): OHellGame =
+      override def makeMove(game: OHellGame, move: OHellMove): OHellGame =
         if (!game.ifGameEnd && checkIfMoveValid(game, move)) {
           move match {
-            case Move(playerId, moveType, _, bid) if moveType == Bid =>
+            case OHellMove(playerId, moveType, _, bid) if moveType == Bid =>
               val players                      = game.players
               val currentPlayer                = players.filter(_.uuid == playerId).head
               val currentPlayerIndex           = players.indexOf(currentPlayer)
@@ -176,9 +173,9 @@ object GameRulesAlgebra {
                     } else player
                   }
                 }
-              game.copy(players = newPlayers, moveType = newMoveType)
+              game.copy(players = newPlayers, moveType = newMoveType, deskWinner = None)
 
-            case Move(playerId, moveType, card, _) if moveType == PlayCard =>
+            case OHellMove(playerId, moveType, card, _) if moveType == PlayCard =>
               val players            = game.players
               val currentPlayer      = players.filter(_.uuid == playerId).head
               val currentDealerIndex = players.indexOf(players.filter(_.isDealer).head)
@@ -276,7 +273,8 @@ object GameRulesAlgebra {
                       winner = winners,
                       ifGameEnd = true,
                       desk = Desk(),
-                      scoreHistory = newScoreHistory
+                      scoreHistory = newScoreHistory,
+                      deskWinner = Option(deskWinner)
                     )
                   } else {
                     val newCardNumberOnHands =
@@ -330,10 +328,12 @@ object GameRulesAlgebra {
                       numberCardsOnHands = newCardNumberOnHands,
                       scoreHistory = newScoreHistory,
                       currentGameRound = newCurrentGameRound,
-                      moveType = newMoveType
+                      moveType = newMoveType,
+                      desk = Desk(),
+                      deskWinner = Option(deskWinner)
                     )
                   }
-                } else game.copy(players = newPlayers, desk = Desk())
+                } else game.copy(players = newPlayers, desk = Desk(), deskWinner = Option(deskWinner))
               } else {
                 val newPlayers = players.zipWithIndex.map { case (player, index) =>
                   if (playerId == player.uuid) {
@@ -343,7 +343,7 @@ object GameRulesAlgebra {
                     player.copy(isHaveMove = true)
                   } else player
                 }
-                game.copy(players = newPlayers, desk = newCardsOnDesk)
+                game.copy(players = newPlayers, desk = newCardsOnDesk, deskWinner = None)
               }
             case _                                                         => game
           }

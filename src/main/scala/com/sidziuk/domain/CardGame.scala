@@ -1,6 +1,6 @@
 package com.sidziuk.game
 
-import com.sidziuk.Deck
+import com.sidziuk.deck.Deck
 import com.sidziuk.room.GameRoom
 
 //trait CardGame extends Game {

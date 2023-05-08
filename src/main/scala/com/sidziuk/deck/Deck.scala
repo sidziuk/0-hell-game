@@ -1,13 +1,9 @@
-package com.sidziuk
+package com.sidziuk.deck
 
-import com.sidziuk.DeckAlgebra.deckAlgebraSync.{createShuffledDesk, getTrump}
-import com.sidziuk.Rank.Nine
-import com.sidziuk.Suit.Heart
+import com.sidziuk.deck.DeckAlgebra.deckAlgebraSync.createShuffledDesk
 import io.circe._
-import io.circe.syntax._
 import io.circe.generic.semiauto._
-
-import java.util.UUID
+import io.circe.syntax._
 
 case class Deck(cards: Set[Card], trump: Option[Card])
 
@@ -68,10 +64,5 @@ object DeckAlgebra {
       Deck(cards, Option(trump))
     }
   }
-}
-
-object app extends App {
-  val f = createShuffledDesk
-  println(f.asJson)
 }
 

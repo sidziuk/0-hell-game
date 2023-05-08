@@ -1,10 +1,9 @@
-package com.sidziuk
+package com.sidziuk.deck
 
 import enumeratum._
 import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}
-import io.circe.{Encoder, HCursor}
-import io.circe.{Decoder, Encoder, Json}
 import io.circe.syntax._
+import io.circe.{Decoder, Encoder, HCursor, Json}
 
 case class Card(suit: Suit, rank: Rank) extends Ordered[Card] {
   override def compare(that: Card): Int = {

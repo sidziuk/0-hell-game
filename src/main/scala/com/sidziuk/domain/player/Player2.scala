@@ -1,7 +1,7 @@
-package com.sidziuk.player
+package com.sidziuk.domain.player
 
 import cats.effect.Sync
-import com.sidziuk.Card
+import com.sidziuk.deck.Card
 
 import scala.collection.immutable.SortedSet
 
