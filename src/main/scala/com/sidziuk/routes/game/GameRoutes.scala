@@ -6,11 +6,11 @@ import cats.effect.std.Queue
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
 import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellMove, OHellPlayer}
+import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.game.ohellgame.responce.{OHellGameDTO, OHellPlayerDTO}
 import com.sidziuk.dto.game.room.command._
 import com.sidziuk.dto.game.room.responce.GameRoomDTO
-import com.sidziuk.room.GameRoom
 import com.sidziuk.servis.game.GameServiceImp
 import fs2.Stream
 import fs2.concurrent._

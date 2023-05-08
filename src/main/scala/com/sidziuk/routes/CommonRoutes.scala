@@ -3,7 +3,7 @@ package com.sidziuk.routes
 import cats.effect.kernel.Ref
 import cats.effect.{Async, Concurrent}
 import cats.syntax.all._
-import com.sidziuk.room.GameRoom
+import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.routes.game.GameRoutes
 import com.sidziuk.routes.player.PlayerRoutes
 import com.sidziuk.servis.game.GameServiceImp

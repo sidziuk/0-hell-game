@@ -3,11 +3,11 @@ package com.sidziuk
 import cats.effect.kernel.Ref
 import cats.effect.{ExitCode, IO, IOApp}
 import com.comcast.ip4s.IpLiteralSyntax
+import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.repository.CreatePlayerTable
 import com.sidziuk.repository.DbTransactor.geth2Transactor
 import com.sidziuk.repository.game.DoobieGameRepositoryImp
 import com.sidziuk.repository.player.DoobiePlayerRepositoryImp
-import com.sidziuk.room.GameRoom
 import com.sidziuk.routes.CommonRoutes
 import com.sidziuk.servis.game.GameServiceImp
 import com.sidziuk.servis.player.PlayerServiceImp

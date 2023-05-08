@@ -1,4 +1,4 @@
-package com.sidziuk.room
+package com.sidziuk.domain.room
 
 import com.sidziuk.domain.game.Game
 import fs2.concurrent.Topic
