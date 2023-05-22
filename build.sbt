@@ -6,7 +6,6 @@ lazy val root = (project in file("."))
   .settings(
     name := "o_hell_card_game"
   )
-
 lazy val thisBuildSettings: Seq[Setting[_]] = inThisBuild(
   Seq(
     version              := "0.2",
@@ -53,12 +52,12 @@ libraryDependencies ++= Seq(
   "com.beachape"  %% "enumeratum"           % "1.7.2"
 )
 
-//// Tapir core
-//libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-core" % "0.17.19"
-//
-//// Tapir HTTP4S server
-//libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "0.17.19"
-//
-//// Tapir JSON Circe
-//libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "0.17.19"
+libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-core" % "1.2.3"
+libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % "1.2.3"
+libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % "1.2.3"
+libraryDependencies +="com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % "1.4.0"
+libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % "1.4.0"
+libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui" % "1.4.0"
+
+
 

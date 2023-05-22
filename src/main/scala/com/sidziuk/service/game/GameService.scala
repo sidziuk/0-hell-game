@@ -1,5 +1,11 @@
-package com.sidziuk.routes.game
+package com.sidziuk.service.game
 
+import cats.Applicative
+import cats.data.OptionT
+import cats.effect.{Async, Concurrent}
+import com.sidziuk.domain.game.{OHellGame, OHellMove}
+import org.http4s.Response
+import org.http4s.websocket.WebSocketFrame
 import cats.effect._
 import cats.effect.kernel.Ref
 import cats.implicits.toFunctorOps
@@ -14,8 +20,6 @@ import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.game.ohellgame.out.{OHellGameDTO, OHellPlayerDTO}
 import com.sidziuk.dto.room.in.GetRoomsDTO
-import com.sidziuk.service.game.GameServiceImp
-import com.sidziuk.service.player.PlayerService
 import io.circe.parser._
 import io.circe.syntax._
 import org.http4s.HttpRoutes
@@ -26,19 +30,8 @@ import org.http4s.websocket.WebSocketFrame
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 
 import java.util.UUID
+import java.util.UUID
 
-object GameRoutes {
-  def getRoutes[F[_]: Async: Concurrent](
-      gameService: GameServiceImp[F],
-      ws: WebSocketBuilder2[F]
-  ): HttpRoutes[F] = {
-
-    val dsl = Http4sDsl[F]
-    import dsl._
-
-    HttpRoutes.of[F] {
-      case GET -> Root / "ws" / "game" / playerUUID / roomUUID =>
-        gameService.getWebSocket(playerUUID, roomUUID, ws)
-    }
-  }
+trait GameService[F[_]] {
+  def getWebSocket(playerUUID: String, roomUUID: String, ws: WebSocketBuilder2[F]): F[Response[F]]
 }

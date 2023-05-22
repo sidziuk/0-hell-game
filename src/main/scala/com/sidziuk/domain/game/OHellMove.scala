@@ -1,6 +1,6 @@
 package com.sidziuk.domain.game
 
-import com.sidziuk.deck.Card
+import com.sidziuk.domain.deck.Card
 import com.sidziuk.dto.WebSocketDTO
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}

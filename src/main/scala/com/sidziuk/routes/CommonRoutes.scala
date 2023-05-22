@@ -5,9 +5,11 @@ import cats.effect.{Async, Concurrent}
 import cats.syntax.all._
 import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.routes.game.GameRoutes
-import com.sidziuk.routes.player.PlayerRoutes
-import com.sidziuk.servis.game.GameServiceImp
-import com.sidziuk.servis.player.PlayerServiceImp
+import com.sidziuk.routes.player.PlayerTapirRoutes
+import com.sidziuk.routes.room.RoomRoutes
+import com.sidziuk.service.game.GameServiceImp
+import com.sidziuk.service.player.PlayerService
+import com.sidziuk.service.room.{RoomServiceHelper, RoomServiceImp}
 import fs2.concurrent.Topic
 import org.http4s.HttpApp
 import org.http4s.implicits._
@@ -18,17 +20,22 @@ import java.util.UUID
 
 object CommonRoutes {
 
-  def getAllRoutes[F[_] : Concurrent : Async](
-                                  playersService: PlayerServiceImp[F],
-                                  gameService: GameServiceImp[F],
-                                  gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
-                                  roomsTopic: Topic[F, String],
-                                  logger: SelfAwareStructuredLogger[F],
-                                  ws: WebSocketBuilder2[F]
-                                ): HttpApp[F] = {
-    new PlayerRoutes[F](playersService).getPlayerRoutes <+>
-      GameRoutes.getRoutes(gameService = gameService,
-      gameRooms = gameRooms, roomsTopic = roomsTopic, logger = logger, ws = ws)
+  def getAllRoutes[F[_]: Concurrent: Async](
+                                             playersService: PlayerService[F],
+                                             gameService: GameServiceImp[F],
+                                             roomService: RoomServiceImp[F],
+                                             ws: WebSocketBuilder2[F]
+  ): HttpApp[F] = {
+//    PlayerRoutes.getRoutes(playersService) <+>
+    PlayerTapirRoutes.getPlayerEndPoints[F](playersService) <+>
+      RoomRoutes.getRoutes[F](
+        roomService = roomService,
+        ws = ws
+      ) <+>
+      GameRoutes.getRoutes[F](
+        gameService = gameService,
+        ws = ws
+      )
   }.orNotFound
 
 }

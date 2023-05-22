@@ -1,6 +1,6 @@
 package com.sidziuk.domain.game
 
-import com.sidziuk.deck.{Card, Deck, DeckAlgebra, Suit}
+import com.sidziuk.domain.deck.{Card, Deck, DeckAlgebra, Suit}
 import com.sidziuk.domain.game.GameRulesAlgebra.numberCardsOnHands
 import io.circe.syntax.EncoderOps
 
@@ -50,13 +50,13 @@ object GameRulesAlgebra {
   Random.setSeed(5)
 
   val numberCardsOnHands = 3
-  val flipRoundNumber    = numberCardsOnHands
-  val maxRounds          = numberCardsOnHands * 2 - 1
+  private val flipRoundNumber    = numberCardsOnHands
+  private val maxRounds          = numberCardsOnHands * 2 - 1
 
   implicit def gameRulesAlgebraSync(implicit deckalg: DeckAlgebra, playeralg: PlayerAlgebra): GameRulesAlgebra =
     new GameRulesAlgebra {
 
-      def nexPlayerIndex(currentPlayerIndex: Int, players: Seq[OHellPlayer]) = (currentPlayerIndex + 1) % players.size
+      def nexPlayerIndex(currentPlayerIndex: Int, players: Seq[OHellPlayer]): Int = (currentPlayerIndex + 1) % players.size
 
       override def startGame(game: OHellGame): OHellGame = {
 

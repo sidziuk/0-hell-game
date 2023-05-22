@@ -1,19 +1,16 @@
 package com.sidziuk.dto
 
 import cats.syntax.functor._
-import com.sidziuk.domain.game.OHellMove
-import com.sidziuk.dto.game.room.command._
+import com.sidziuk.dto.game.ohellgame.in.OHellMoveDTO
+import com.sidziuk.dto.room.in.{CreateNewRoomDTO, GetRoomsDTO, RoomCommandsDTO}
 import io.circe.Decoder
 
-
-trait WebSocketDTO{}
+trait WebSocketDTO {}
 
 object WebSocketDTO {
   implicit val webSocketDTODecoder: Decoder[WebSocketDTO] =
     CreateNewRoomDTO.Decoder.widen[WebSocketDTO] or
-      JoinToRoomDTO.runGameDTODecoder.widen[WebSocketDTO] or
-      LeaveRoomDTO.runGameDTODecoder.widen[WebSocketDTO] or
-      RunGameDTO.runGameDTODecoder.widen[WebSocketDTO] or
-      OHellMove.moveDecoder.widen[WebSocketDTO] or
+      RoomCommandsDTO.decoder.widen[WebSocketDTO] or
+      OHellMoveDTO.Decoder.widen[WebSocketDTO] or
       GetRoomsDTO.getRoomsDTODecoder.widen[WebSocketDTO]
 }
