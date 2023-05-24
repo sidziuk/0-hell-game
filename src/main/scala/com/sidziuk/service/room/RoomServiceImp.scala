@@ -1,14 +1,9 @@
 package com.sidziuk.service.room
 
 import cats.Applicative
-import cats.effect.{Async, Concurrent}
-import com.sidziuk.service.room.RoomService
-import org.http4s.Response
-import org.http4s.dsl.Http4sDsl
-import org.http4s.server.websocket.WebSocketBuilder2
-import cats.effect._
 import cats.effect.kernel.Ref
 import cats.effect.std.Queue
+import cats.effect.{Async, Concurrent}
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
 import com.sidziuk.domain.room.GameRoom
@@ -16,31 +11,30 @@ import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.room.in.{CreateNewRoomDTO, GetRoomsDTO, RoomCommandsDTO, RoomCommandsEnum}
 import com.sidziuk.dto.room.out.{GamePlayerDTO, GameRoomDTO}
 import com.sidziuk.service.player.PlayerServiceImp
-import com.sidziuk.service.room.RoomServiceHelper
 import fs2.Stream
 import fs2.concurrent._
 import io.circe.parser._
 import io.circe.syntax._
-import org.http4s.HttpRoutes
+import org.http4s.Response
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import org.typelevel.log4cats.SelfAwareStructuredLogger
 
 import java.util.UUID
 
 class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
-                                                            playerService: PlayerServiceImp[F],
-                                                            roomsTopic: Topic[F, String],
-                                                            gameRooms: Ref[F, Map[UUID, GameRoom[F]]]
+    playerService: PlayerServiceImp[F],
+    roomsTopic: Topic[F, String],
+    gameRooms: Ref[F, Map[UUID, GameRoom[F]]]
 ) extends RoomService[F] {
   override def getWebSocket(
       playerUUID: String,
       ws: WebSocketBuilder2[F]
   ): F[Response[F]] = {
 
-    val roomServiceHelper: RoomServiceHelper[F] = new RoomServiceHelperImp[F](gameRooms, roomsTopic)
+    val roomServiceHelper: RoomServiceHelper[F] =
+      new RoomServiceHelperImp[F](gameRooms, roomsTopic)
     val dsl = Http4sDsl[F]
     import dsl._
 
@@ -90,7 +84,11 @@ class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
                     .map { case (_, gameRoom) =>
                       GameRoomDTO(
                         roomUUID = gameRoom.roomUUID,
-                        players = Option(gameRoom.game.players.map(player => GamePlayerDTO(player.uuid, player.name)))
+                        players = Option(
+                          gameRoom.game.players.map(player =>
+                            GamePlayerDTO(player.uuid, player.name)
+                          )
+                        )
                       )
                     }
                     .asJson
