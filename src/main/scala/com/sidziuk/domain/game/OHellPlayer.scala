@@ -55,7 +55,6 @@ trait PlayerAlgebra {
   }
 
 object PlayerAlgebra {
-  //  def apply[F[_]](implicit F: PlayerAlgebra[F]): PlayerAlgebra[F] = F
 
   implicit val playerAlgebraSync: PlayerAlgebra = new PlayerAlgebra {
 

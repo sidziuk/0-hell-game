@@ -8,20 +8,20 @@ import io.circe.{Decoder, Encoder}
 import java.util.UUID
 
 case class OHellGameDTO(
-                      cardNumberInDeck: Int,
-                      trump: Card,
-                      player: Seq[OHellPlayerDTO],
-                      winner: Option[Seq[OHellPlayer]],
-                      desk: Desk,
-                      numberCardsOnHands: Int,
-                      scoreHistory: Map[UUID, Seq[Int]],
-                      currentGameRound: Int,
-                      moveType: MoveType,
-                      ifGameEnd: Boolean,
-                      isGameStarted: Boolean,
-                      minPlayerNumber: Int,
-                      maxPlayersNumber: Int,
-                      deskWinner: Option[UUID]
+                         cardNumberInDeck: Int,
+                         trump: Card,
+                         players: Seq[OHellPlayerDTO],
+                         winner: Option[Seq[OHellPlayer]],
+                         desk: Desk,
+                         numberCardsOnHands: Int,
+                         scoreHistory: Map[UUID, Seq[Int]],
+                         currentGameRound: Int,
+                         moveType: MoveType,
+                         ifGameEnd: Boolean,
+                         isGameStarted: Boolean,
+                         minPlayerNumber: Int,
+                         maxPlayersNumber: Int,
+                         deskWinner: Option[UUID]
                     )
 
 object OHellGameDTO {

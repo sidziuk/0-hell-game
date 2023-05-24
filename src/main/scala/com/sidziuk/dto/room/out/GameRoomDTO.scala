@@ -5,18 +5,9 @@ import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
 import java.util.UUID
-case class GameRoomDTO(roomUUID: UUID, game: Game)
+case class GameRoomDTO(roomUUID: UUID, players: Option[Seq[GamePlayerDTO]] = None)
 
 object GameRoomDTO {
-
-  implicit val gameDecoder: Decoder[Game] = {
-    Decoder[OHellGame].map[Game](identity)
-  }
-
-  implicit val gameEncoder: Encoder[Game] = {
-
-    Encoder[OHellGame].asInstanceOf[Encoder[Game]]
-  }
   implicit val decoder: Decoder[GameRoomDTO] = deriveDecoder[GameRoomDTO]
   implicit val encoder: Encoder[GameRoomDTO] = deriveEncoder[GameRoomDTO]
 }

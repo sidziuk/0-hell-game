@@ -14,7 +14,7 @@ import cats.syntax.all._
 import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.room.in.{CreateNewRoomDTO, GetRoomsDTO, RoomCommandsDTO, RoomCommandsEnum}
-import com.sidziuk.dto.room.out.GameRoomDTO
+import com.sidziuk.dto.room.out.{GamePlayerDTO, GameRoomDTO}
 import com.sidziuk.service.player.PlayerServiceImp
 import com.sidziuk.service.room.RoomServiceHelper
 import fs2.Stream
@@ -87,10 +87,10 @@ class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
                     .filter { case (_, gameRoom) =>
                       !gameRoom.game.isGameStarted
                     }
-                    .map { case (uuid, gameRoom) =>
-                      uuid -> GameRoomDTO(
+                    .map { case (_, gameRoom) =>
+                      GameRoomDTO(
                         roomUUID = gameRoom.roomUUID,
-                        game = gameRoom.game
+                        players = Option(gameRoom.game.players.map(player => GamePlayerDTO(player.uuid, player.name)))
                       )
                     }
                     .asJson

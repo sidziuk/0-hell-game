@@ -1,9 +1,7 @@
 package com.sidziuk.dto.player.out
 
-import com.sidziuk.dto.player.in.CreatePlayerDTO
 import io.circe._
-import io.circe.generic.auto._
-import io.circe.generic.semiauto.{deriveCodec, deriveDecoder, deriveEncoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 final case class PlayerUUID(playerUUID: String)
 

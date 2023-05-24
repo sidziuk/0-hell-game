@@ -1,8 +1,7 @@
 package com.sidziuk.dto.room.in
 
+import io.circe.Decoder
 import io.circe.generic.extras.semiauto.deriveEnumerationCodec
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 object RoomCommandsEnum {
   sealed trait RoomCommands

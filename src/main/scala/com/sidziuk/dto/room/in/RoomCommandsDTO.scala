@@ -1,9 +1,9 @@
 package com.sidziuk.dto.room.in
 
-import RoomCommandsEnum.RoomCommands
 import com.sidziuk.dto.WebSocketDTO
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import com.sidziuk.dto.room.in.RoomCommandsEnum.RoomCommands
+import io.circe.Decoder
+import io.circe.generic.semiauto.deriveDecoder
 
 import java.util.UUID
 

@@ -116,7 +116,7 @@ class GameServiceImp[F[_]: Async: Concurrent: Applicative](
                                     cardNumberInDeck =
                                       oHellGame.deck.get.cards.size,
                                     trump = oHellGame.deck.get.trump.get,
-                                    player = oHellGame.players.map { player =>
+                                    players = oHellGame.players.map { player =>
                                       OHellPlayerDTO(
                                         uuid = player.uuid,
                                         name = player.name,
