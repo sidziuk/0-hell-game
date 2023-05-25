@@ -1,7 +1,7 @@
 package com.sidziuk.service.room
 
+import cats.effect.Async
 import cats.effect.kernel.Ref
-import cats.effect.{Async, Concurrent}
 import cats.syntax.all._
 import com.sidziuk.domain.game.ohellgame.{GameRulesAlgebra, OHellGame, OHellPlayer}
 import com.sidziuk.domain.player.RegisteredPlayer
@@ -124,7 +124,7 @@ class RoomServiceHelperImp[F[_]: Async](
 }
 
 object RoomServiceHelperImp {
-  def apply[F[_]: Async: Concurrent](
+  def apply[F[_]: Async](
     gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
     roomsTopic: Topic[F, String]
   ): RoomServiceHelperImp[F] =
