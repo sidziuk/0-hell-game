@@ -6,6 +6,7 @@ import cats.syntax.all._
 import com.sidziuk.domain.game.ohellgame.{GameRulesAlgebra, OHellGame, OHellMove}
 import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
+import com.sidziuk.dto.game.ohellgame.in.OHellMoveDTO
 import com.sidziuk.dto.game.ohellgame.out.{OHellGameDTO, OHellPlayerDTO}
 import com.sidziuk.dto.room.in.GetRoomsDTO
 import com.sidziuk.service.player.PlayerServiceImp
@@ -54,7 +55,7 @@ class GameServiceImp[F[_]: Async](
                               currentRoom.game match {
                                 case oHellGame: OHellGame =>
                                   webSocketDTO match {
-                                    case move: OHellMove =>
+                                    case move: OHellMoveDTO =>
                                       val newGame =
                                         GameRulesAlgebra.gameRulesAlgebraSync
                                           .makeMove(
