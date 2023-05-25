@@ -7,13 +7,13 @@ import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellPlayer}
 import com.sidziuk.domain.player.RegisteredPlayer
 import com.sidziuk.domain.room.GameRoom
 import fs2.concurrent.Topic
-import org.typelevel.log4cats.SelfAwareStructuredLogger
 
 import java.util.UUID
 class RoomServiceHelperImp[F[_]: Async: Concurrent](
   gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
   roomsTopic: Topic[F, String],
 ) extends RoomServiceHelper[F] {
+
   override def createNewRoom(gameType: String, player: RegisteredPlayer): F[Unit] = for {
     _ <- gameType match {
            case "OHell" =>
@@ -24,11 +24,7 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
              )
              gameRooms.update(c => c.updated(roomUUID, gameRoom)) >>
                roomsTopic.publish1(s"new room $roomUUID was created")
-           case _       =>
-//             logger.warn(
-//               s"Game with name $gameType does not exist"
-//             ) >>
-               Async[F].unit
+           case _       => Async[F].unit
          }
 
   } yield ()
@@ -41,17 +37,12 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
                       room.game.players.map(_.uuid).contains(player.uuid) &&
                       !room.game.isGameStarted
                     ) {
-//                      logger.warn(
-//                        s"Player with ID ${player.uuid} already exists in room $roomUUID"
-//                      ) >>
                         Async[F].unit
                     } else if (room.game.maxPlayersNumber == room.game.players.size) {
-//                      logger.warn(s"Game is full of players") >>
                         Async[F].unit
                     } else {
                       room.game match {
                         case oHellGAme: OHellGame =>
-                          println("here")
                           val updatedRoom = room.copy(game =
                             oHellGAme.copy(players =
                               (oHellGAme.players :+ OHellPlayer(
@@ -65,13 +56,10 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
                               s"player ${player.uuid} joined to romm $roomUUID"
                             )
                         case _                    =>
-//                          logger.warn(s"Game type is not valid") >>
                             Async[F].unit
                       }
                     }
                   case None       =>
-//                    logger
-//                      .warn(s"Room with ID $roomUUID does not exist") >>
                       Async[F].unit
                 }
 
@@ -85,9 +73,6 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
                       !room.game.players.map(_.uuid).contains(player.uuid) &&
                       !room.game.isGameStarted
                     ) {
-//                      logger.warn(
-//                        s"Player with ID ${player.uuid} already not exists in room $roomUUID"
-//                      ) >>
                         Async[F].unit
                     } else {
                       room.game match {
@@ -99,12 +84,10 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
                               s"player ${player.uuid} leaved room $roomUUID"
                             )
                         case _                    =>
-//                          logger.warn(s"Game type is not valid") >>
                             Async[F].unit
                       }
                     }
                   case None       =>
-//                    logger.warn(s"Room with ID $roomUUID does not exist") >>
                       Async[F].unit
                 }
   } yield ()
@@ -129,18 +112,12 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
                               s"player ${player.uuid} leaved room $roomUUID"
                             )
                         case _                    =>
-//                          logger.warn(s"Game type is not valid") >>
                             Async[F].unit
                       }
                     } else {
-//                      logger.warn(
-//                        s"Player with ID ${player.uuid} already not exists in room $roomUUID"
-//                      ) >>
                         Async[F].unit
                     }
                   case None       =>
-//                    logger
-//                      .warn(s"Room with ID $roomUUID does not exist") >>
                       Async[F].unit
                 }
   } yield ()
@@ -149,8 +126,7 @@ class RoomServiceHelperImp[F[_]: Async: Concurrent](
 object RoomServiceHelperImp {
   def apply[F[_]: Async: Concurrent](
     gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
-    roomsTopic: Topic[F, String],
-    logger: SelfAwareStructuredLogger[F]
+    roomsTopic: Topic[F, String]
   ): RoomServiceHelperImp[F] =
     new RoomServiceHelperImp[F](
       gameRooms: Ref[F, Map[UUID, GameRoom[F]]],

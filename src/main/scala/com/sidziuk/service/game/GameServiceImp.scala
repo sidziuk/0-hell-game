@@ -1,16 +1,10 @@
 package com.sidziuk.service.game
 import cats.Applicative
-import cats.effect.{Async, Concurrent}
-import cats.data.OptionT
-import cats.effect.{Async, Concurrent}
-import com.sidziuk.domain.game.{OHellGame, OHellMove}
-import org.http4s.{HttpRoutes, Response}
-import org.http4s.websocket.WebSocketFrame
-import cats.effect._
 import cats.effect.kernel.Ref
+import cats.effect.{Async, Concurrent}
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
-import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellMove, OHellPlayer}
+import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellMove}
 import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.game.ohellgame.out.{OHellGameDTO, OHellPlayerDTO}
@@ -18,14 +12,12 @@ import com.sidziuk.dto.room.in.GetRoomsDTO
 import com.sidziuk.service.player.PlayerServiceImp
 import io.circe.parser._
 import io.circe.syntax._
+import org.http4s.Response
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
-import org.typelevel.log4cats.SelfAwareStructuredLogger
-import fs2.Stream
 
-import java.util.UUID
 import java.util.UUID
 
 class GameServiceImp[F[_]: Async: Concurrent: Applicative](
@@ -56,7 +48,6 @@ class GameServiceImp[F[_]: Async: Concurrent: Applicative](
                   receive = _.evalMap { case WebSocketFrame.Text(message, _) =>
                     decode[WebSocketDTO](message) match {
                       case Right(webSocketDTO) =>
-                        println(s"${webSocketDTO.getClass}")
                         for {
                           allRooms <- gameRooms.get
                           _ <- allRooms.get(roomUUID) match {
@@ -76,7 +67,6 @@ class GameServiceImp[F[_]: Async: Concurrent: Applicative](
                                               bid = move.bid
                                             )
                                           )
-                                      println(newGame)
                                       val updatedRoom = currentRoom.copy(
                                         game = newGame
                                       )
@@ -87,7 +77,6 @@ class GameServiceImp[F[_]: Async: Concurrent: Applicative](
                                           s"player $playerUUID leaved room $roomUUID"
                                         ) >> Async[F].unit
                                     case GetRoomsDTO() =>
-                                      println("stars-----" + currentRoom)
                                       currentRoom.gameTopic.get.publish1(
                                         s"player $playerUUID leaved room $roomUUID"
                                       ) >> Async[F].unit
@@ -98,7 +87,7 @@ class GameServiceImp[F[_]: Async: Concurrent: Applicative](
                             case None => Async[F].unit
                           }
                         } yield ()
-                      case Left(error) => Async[F].unit
+                      case Left(_) => Async[F].unit
                     }
                   },
                   send = {

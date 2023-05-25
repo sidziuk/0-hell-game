@@ -44,15 +44,10 @@ class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
       playerUUID <- Async[F].delay(UUID.fromString(playerUUID))
       mayBeSocket <- allPlayers.get(playerUUID) match {
         case Some(player) =>
-          println("here")
           ws.build(
             receive = _.evalMap { case WebSocketFrame.Text(message, _) =>
-              println(s"$message")
-
               decode[WebSocketDTO](message) match {
-
                 case Right(webSocketDTO) =>
-                  println(s"${webSocketDTO.getClass}")
                   webSocketDTO match {
                     case GetRoomsDTO() => queue.offer("get_rooms")
                     case CreateNewRoomDTO(gameType) =>
@@ -67,7 +62,7 @@ class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
                           roomServiceHelper.runGame(roomUUID, player)
                       }
                   }
-                case Left(error) => Async[F].unit
+                case Left(_) => Async[F].unit
               }
             },
             send = {

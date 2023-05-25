@@ -10,10 +10,9 @@ import com.sidziuk.repository.player.DoobiePlayerRepository
 import com.sidziuk.routes.CommonRoutes
 import com.sidziuk.service.game.GameServiceImp
 import com.sidziuk.service.player.PlayerServiceImp
-import com.sidziuk.service.room.{RoomServiceHelperImp, RoomServiceImp}
+import com.sidziuk.service.room.RoomServiceImp
 import fs2.concurrent._
 import org.http4s.ember.server.EmberServerBuilder
-import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 import java.util.UUID
 
@@ -21,7 +20,6 @@ object Main extends IOApp {
   def run(args: List[String]): IO[ExitCode] = {
     geth2Transactor[IO].use { transactor =>
       for {
-        logger            <- Slf4jLogger.create[IO]
         _                 <- CreatePlayerTable[IO](transactor)
         gameRooms         <- Ref.of[IO, Map[UUID, GameRoom[IO]]](Map.empty)
         roomsTopic        <- Topic[IO, String]
