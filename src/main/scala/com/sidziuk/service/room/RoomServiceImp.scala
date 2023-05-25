@@ -81,9 +81,11 @@ class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
                         roomUUID = gameRoom.roomUUID,
                         players = Option(
                           gameRoom.game.players.map(player =>
-                            GamePlayerDTO(player.uuid, player.name)
+                            GamePlayerDTO(player.uuid, player.name),
                           )
-                        )
+                        ),
+                        minPlayerNumber = gameRoom.game.minPlayerNumber,
+                        maxPlayersNumber = gameRoom.game.maxPlayersNumber
                       )
                     }
                     .asJson
