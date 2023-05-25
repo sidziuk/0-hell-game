@@ -1,7 +1,9 @@
-package com.sidziuk.domain.game
+package com.sidziuk.domain.game.ohellgame
 
-import com.sidziuk.domain.deck.{Card, Deck, DeckAlgebra, Suit}
-import com.sidziuk.domain.game.GameRulesAlgebra.numberCardsOnHands
+import com.sidziuk.domain.Game
+import com.sidziuk.domain.game.Desk
+import com.sidziuk.domain.game.deck.{Card, Deck, DeckAlgebra, Suit}
+import com.sidziuk.domain.game.ohellgame.GameRulesAlgebra.numberCardsOnHands
 
 import java.util.UUID
 import scala.annotation.tailrec

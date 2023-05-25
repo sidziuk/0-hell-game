@@ -1,6 +1,6 @@
 package com.sidziuk.dto.game.ohellgame.out
 
-import com.sidziuk.domain.deck.Card
+import com.sidziuk.domain.game.deck.Card
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 

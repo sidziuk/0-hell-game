@@ -1,7 +1,8 @@
 package com.sidziuk.dto.game.ohellgame.out
 
-import com.sidziuk.domain.deck.Card
-import com.sidziuk.domain.game.{Desk, MoveType, OHellPlayer}
+import com.sidziuk.domain.game.Desk
+import com.sidziuk.domain.game.deck.Card
+import com.sidziuk.domain.game.ohellgame.{MoveType, OHellPlayer}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 

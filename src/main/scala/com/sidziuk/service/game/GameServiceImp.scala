@@ -4,7 +4,7 @@ import cats.effect.kernel.Ref
 import cats.effect.{Async, Concurrent}
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
-import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellMove}
+import com.sidziuk.domain.game.ohellgame.{GameRulesAlgebra, OHellGame, OHellMove}
 import com.sidziuk.domain.room.GameRoom
 import com.sidziuk.dto.WebSocketDTO
 import com.sidziuk.dto.game.ohellgame.out.{OHellGameDTO, OHellPlayerDTO}

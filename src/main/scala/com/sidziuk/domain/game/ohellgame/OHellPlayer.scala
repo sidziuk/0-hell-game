@@ -1,7 +1,7 @@
-package com.sidziuk.domain.game
+package com.sidziuk.domain.game.ohellgame
 
 import com.sidziuk.domain.Player
-import com.sidziuk.domain.deck.Card
+import com.sidziuk.domain.game.deck.Card
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor, Json}
 

@@ -1,6 +1,4 @@
-package com.sidziuk.domain.game
-
-import com.sidziuk.domain.Player
+package com.sidziuk.domain
 
 trait Game {
   val minPlayerNumber: Int

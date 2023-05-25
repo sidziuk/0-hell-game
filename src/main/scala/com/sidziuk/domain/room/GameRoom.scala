@@ -1,6 +1,6 @@
 package com.sidziuk.domain.room
 
-import com.sidziuk.domain.game.Game
+import com.sidziuk.domain.Game
 import fs2.concurrent.Topic
 
 import java.util.UUID

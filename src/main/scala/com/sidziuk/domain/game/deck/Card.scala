@@ -1,4 +1,4 @@
-package com.sidziuk.domain.deck
+package com.sidziuk.domain.game.deck
 
 import enumeratum._
 import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}

@@ -3,7 +3,7 @@ package com.sidziuk.service.room
 import cats.effect.kernel.Ref
 import cats.effect.{Async, Concurrent}
 import cats.syntax.all._
-import com.sidziuk.domain.game.{GameRulesAlgebra, OHellGame, OHellPlayer}
+import com.sidziuk.domain.game.ohellgame.{GameRulesAlgebra, OHellGame, OHellPlayer}
 import com.sidziuk.domain.player.RegisteredPlayer
 import com.sidziuk.domain.room.GameRoom
 import fs2.concurrent.Topic

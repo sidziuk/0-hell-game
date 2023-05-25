@@ -1,4 +1,4 @@
-package com.sidziuk.domain.deck
+package com.sidziuk.domain.game.deck
 
 import io.circe._
 import io.circe.generic.semiauto._

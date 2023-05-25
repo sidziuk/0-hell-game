@@ -1,7 +1,7 @@
 package com.sidziuk.dto.game.ohellgame.in
 
-import com.sidziuk.domain.deck.Card
-import com.sidziuk.domain.game.MoveType
+import com.sidziuk.domain.game.deck.Card
+import com.sidziuk.domain.game.ohellgame.MoveType
 import com.sidziuk.dto.WebSocketDTO
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}

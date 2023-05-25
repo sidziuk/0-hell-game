@@ -1,6 +1,6 @@
 package com.sidziuk.domain.game
 
-import com.sidziuk.domain.deck.{Card, Suit}
+import com.sidziuk.domain.game.deck.{Card, Suit}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
 
