@@ -1,9 +1,8 @@
 package com.sidziuk.service.room
 
-import cats.Applicative
+import cats.effect.Async
 import cats.effect.kernel.Ref
 import cats.effect.std.Queue
-import cats.effect.{Async, Concurrent}
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
 import com.sidziuk.domain.room.GameRoom
@@ -23,7 +22,7 @@ import org.http4s.websocket.WebSocketFrame
 
 import java.util.UUID
 
-class RoomServiceImp[F[_]: Async: Concurrent: Applicative](
+class RoomServiceImp[F[_]: Async](
     playerService: PlayerServiceImp[F],
     roomsTopic: Topic[F, String],
     gameRooms: Ref[F, Map[UUID, GameRoom[F]]]

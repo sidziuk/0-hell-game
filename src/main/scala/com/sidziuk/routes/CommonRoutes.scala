@@ -1,6 +1,6 @@
 package com.sidziuk.routes
 
-import cats.effect.{Async, Concurrent}
+import cats.effect.Async
 import cats.syntax.all._
 import com.sidziuk.routes.game.GameRoutes
 import com.sidziuk.routes.player.PlayerTapirRoutes
@@ -14,11 +14,11 @@ import org.http4s.server.websocket.WebSocketBuilder2
 
 object CommonRoutes {
 
-  def getAllRoutes[F[_]: Concurrent: Async](
-                                             playersService: PlayerService[F],
-                                             gameService: GameServiceImp[F],
-                                             roomService: RoomServiceImp[F],
-                                             ws: WebSocketBuilder2[F]
+  def getAllRoutes[F[_]: Async](
+      playersService: PlayerService[F],
+      gameService: GameServiceImp[F],
+      roomService: RoomServiceImp[F],
+      ws: WebSocketBuilder2[F]
   ): HttpApp[F] = {
 //    PlayerRoutes.getRoutes(playersService) <+>
     PlayerTapirRoutes.getPlayerEndPoints[F](playersService) <+>

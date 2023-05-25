@@ -1,7 +1,6 @@
 package com.sidziuk.service.game
-import cats.Applicative
+import cats.effect.Async
 import cats.effect.kernel.Ref
-import cats.effect.{Async, Concurrent}
 import cats.implicits.toFunctorOps
 import cats.syntax.all._
 import com.sidziuk.domain.game.ohellgame.{GameRulesAlgebra, OHellGame, OHellMove}
@@ -20,7 +19,7 @@ import org.http4s.websocket.WebSocketFrame
 
 import java.util.UUID
 
-class GameServiceImp[F[_]: Async: Concurrent: Applicative](
+class GameServiceImp[F[_]: Async](
                                                             playerService: PlayerServiceImp[F],
                                                             gameRooms: Ref[F, Map[UUID, GameRoom[F]]]
 ) extends GameService[F] {

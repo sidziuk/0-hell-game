@@ -9,7 +9,7 @@ import com.sidziuk.domain.room.GameRoom
 import fs2.concurrent.Topic
 
 import java.util.UUID
-class RoomServiceHelperImp[F[_]: Async: Concurrent](
+class RoomServiceHelperImp[F[_]: Async](
   gameRooms: Ref[F, Map[UUID, GameRoom[F]]],
   roomsTopic: Topic[F, String],
 ) extends RoomServiceHelper[F] {
