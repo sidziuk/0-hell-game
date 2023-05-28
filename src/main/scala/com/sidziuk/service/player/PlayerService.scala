@@ -9,7 +9,7 @@ import java.util.UUID
 trait PlayerService[F[_]] {
   def create(createdPlayer: CreatePlayerDTO): F[Either[String, PlayerUUID]]
 
-  def get(name: String, password: String): F[Either[String, PlayerUUID]]
+  def get(name: String): F[Either[String, PlayerUUID]]
 
   def delete(playerUUID: String): F[Either[String, PlayerUUID]]
 

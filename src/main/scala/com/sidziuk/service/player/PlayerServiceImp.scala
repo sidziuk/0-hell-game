@@ -16,7 +16,7 @@ class PlayerServiceImp[F[_]: Sync](playerRepository: PlayerRepository[F])
   ): F[Either[String, PlayerUUID]] = {
     val playerId = UUID.randomUUID().toString
     playerRepository
-      .create(playerId, createdPlayer.name, createdPlayer.password)
+      .create(playerId, createdPlayer.name)
       .flatMap { x =>
         if (x != 0) Sync[F].delay(Right(PlayerUUID(playerId)))
         else
@@ -26,11 +26,8 @@ class PlayerServiceImp[F[_]: Sync](playerRepository: PlayerRepository[F])
       }
   }
 
-  override def get(
-      name: String,
-      password: String
-  ): F[Either[String, PlayerUUID]] = playerRepository
-    .get(name, password)
+  override def get(name: String ): F[Either[String, PlayerUUID]] = playerRepository
+    .get(name)
     .flatMap {
       case Some(playerUUID) => Sync[F].delay(Right(PlayerUUID(playerUUID)))
       case None             => Sync[F].delay(Left(s"Failed to get player with name $name"))

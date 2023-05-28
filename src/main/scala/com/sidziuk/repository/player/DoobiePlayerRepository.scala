@@ -10,27 +10,27 @@ import java.util.UUID
 
 class DoobiePlayerRepository[F[_]: Sync](transactor: Transactor[F]) extends PlayerRepository[F] {
 
-  override def create(playerUUID: String, name: String, password: String): F[Int] = {
+  override def create(playerUUID: String, name: String): F[Int] = {
     for {
-      existingPlayer <- get(name, password)
+      existingPlayer <- get(name)
       result         <- existingPlayer match {
                           case Some(_) =>
                             Sync[F].pure(0)
                           case None    =>
                             sql"""
                             INSERT INTO player (id, name, password)
-                            VALUES ($playerUUID, $name, $password)
+                            VALUES ($playerUUID, $name)
                             """.update.run
                               .transact(transactor)
                         }
     } yield result
   }
 
-  override def get(name: String, password: String): F[Option[String]] =
+  override def get(name: String): F[Option[String]] =
     sql"""
     SELECT id
     FROM player
-    WHERE name = $name AND password = $password
+    WHERE name = $name
     """
       .query[String]
       .option
